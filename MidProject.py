@@ -1,6 +1,7 @@
 from tkinter import *
 import random
 from time import sleep
+from copy import deepcopy
 
 # x = column
 # y = row
@@ -10,25 +11,27 @@ x = int(input('columns: '))
 
 
 class SimulationGame:
-    def __init__(self, cls, row, column, width, height):
+    def __init__(self, cls, n, column, width, height):
         self.cls = cls
-        self.row = row
-        self.column = column
+        self.n = n
+        self.m = column
         self.width = width
         self.height = height
-        self.array = [[random.choice([0, 1]) for _ in range(self.column)] for _ in range(self.row)]
+        self.array = [[random.choice([0, 1]) for _ in range(self.m)] for _ in range(self.n)]
+        self.neighbours = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
+
         self.draw_simulation()
 
-    neighbours = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
 
     def print_item(self):
         for item in self.array:
-            print(item)
+            print(' '.join(map(str, item)))
+        print('==================================')
 
     # Checks is the cell inside of array
     def __check_cell(self, field, x, y):
-        return 0 <= y < self.column \
-               and 0 <= x < self.row \
+        return 0 <= y < self.m \
+               and 0 <= x < self.n \
                and field[y][x] == 1
 
     # Get cells neighbours
@@ -39,56 +42,45 @@ class SimulationGame:
             yield x + c, y + r
 
     def simulation_rule(self):
-        temporary_array = [[0 for _ in range(self.column)] for _ in range(self.row)]
+        temporary_array = deepcopy(self.array)
 
-        for item_y in range(self.row):
-            for item_x in range(self.column):
-                curren_cell = self.array[item_y][item_x]
-                alive = 0
+        for i in range(self.n):
+            for j in range(self.m):
+                neib_alive = 0
+                for y, x in self.neighbours:
+                    y = (i + y) % self.n
+                    x = (j + x) % self.m
 
-                for x_neighbour, y_neighbour in self._get_neighbours(item_x, item_y):
-                    if self.__check_cell(self.array, x_neighbour, y_neighbour):
-                        alive += 1
-                    else:
-                        alive += 0
+                    neib_alive += temporary_array[y][x]
 
-                # if cell is dead
-                if curren_cell == 0:
-                    if 5 <= alive < 9:
-                        temporary_array[item_y][item_x] = 1
-                    else:
-                        temporary_array[item_y][item_x] = 0
+                if neib_alive not in (2, 3):
+                    self.array[i][j] = 0
+                elif neib_alive == 3:
+                    self.array[i][j] = 1
+                print(neib_alive)
+                # break
 
-                # if cell is alive
-                else:
-                    if 4 <= alive < 9:
-                        temporary_array[item_y][item_x] = 1
-                    else:
-                        temporary_array[item_y][item_x] = 0
 
-        self.array = temporary_array
 
     def draw_simulation(self):
-        y_size = self.width // self.row
-        x_size = self.height // self.column
-
-        for y_item in range(self.row):
-            for x_item in range(self.column):
+        y_size = self.height / self.n
+        x_size = self.width / self.m
+        self.cls.delete('all')
+        for y_item in range(self.n):
+            for x_item in range(self.m):
+                color = 'white'
                 if self.array[y_item][x_item] == 1:
                     color = 'green'
-                else:
-                    color = 'white'
-                self.cls.create_oval((y_item + 1) * y_size, (x_item + 1) * x_size, y_item *
-                                     y_size, x_item * x_size, fill=color)
+                self.cls.create_oval(x_item * x_size,y_item * y_size, (x_item + 1) * x_size, y_size*(y_item+1), fill=color)
 
         self.simulation_rule()
-        sleep(1)
-        self.cls.after(100, self.draw_simulation)
+        self.cls.after(300, self.draw_simulation)
         self.print_item()
 
 
 tkinterr = Tk()
 tkinterr.geometry('800x600')
+tkinterr.resizable(False, False)
 canva = Canvas(tkinterr, width=800, height=600)
 canva.pack()
 field = SimulationGame(canva, y, x, 800, 600)
