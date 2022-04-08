@@ -5,11 +5,11 @@ from copy import deepcopy
 
 # x = column
 # y = row
-
+# Player can set amount of rows and columns
 y = int(input('rows: '))
 x = int(input('columns: '))
 
-
+#Create a class with __init__ method 
 class SimulationGame:
     def __init__(self, cls, n, column, width, height):
         self.cls = cls
@@ -22,25 +22,29 @@ class SimulationGame:
 
         self.draw_simulation()
 
-
+    
+#This method separates matrices 
+#This is necessary to understand the output in the terminal 
+#It doesn't affect the performance of the game itself.
     def print_item(self):
         for item in self.array:
             print(' '.join(map(str, item)))
         print('==================================')
 
-    # Checks is the cell inside of array
+# Checks is the cell inside of array
     def __check_cell(self, field, x, y):
         return 0 <= y < self.m \
                and 0 <= x < self.n \
                and field[y][x] == 1
 
-    # Get cells neighbours
-    # c = column
-    # r = row
+# Get cells neighbours
+# c = column
+# r = row
     def _get_neighbours(self, x, y):
         for c, r in self.neighbours:
             yield x + c, y + r
 
+# The method that sets options according to the classic rules of the game
     def simulation_rule(self):
         temporary_array = deepcopy(self.array)
 
@@ -61,6 +65,8 @@ class SimulationGame:
                 # break
 
 
+# Draws ovals using a matrix according to the method above
+# The first ovals will appear randomly
 
     def draw_simulation(self):
         y_size = self.height / self.n
