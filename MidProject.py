@@ -75,7 +75,7 @@ class SimulationGame:
         for y_item in range(self.row):
             for x_item in range(self.column):
                 if self.array[y_item][x_item] == 1:
-                    color = 'black'
+                    color = 'green'
                 else:
                     color = 'white'
                 self.cls.create_oval((y_item + 1) * y_size, (x_item + 1) * x_size, y_item *
